@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Block the admin QR page from indexing
+Disallow: /admin/
+
+Sitemap: https://brewandbloom.cafe/sitemap.xml
