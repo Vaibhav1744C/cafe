@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 
 const NAV_LINKS = [
-  { label: 'Menu',     href: '#menu' },
-  { label: 'Gallery',  href: '#gallery' },
-  { label: 'About',    href: '#about' },
-  { label: 'Reviews',  href: '#reviews' },
-  { label: 'Location', href: '#location' },
-  { label: 'Events',   href: '#events' },
+  { label: 'Menu',          href: '#menu' },
+  { label: 'Gallery',       href: '#gallery' },
+  { label: 'About',         href: '#about' },
+  { label: 'Reviews',       href: '#reviews' },
+  { label: 'Location',      href: '#location' },
+  { label: 'Events',        href: '#events' },
+  { label: 'Reserve Table', href: '#reservation', highlight: true },
 ]
 
 export default function Navbar() {
@@ -52,11 +53,16 @@ export default function Navbar() {
 
           {/* Desktop nav */}
           <ul className="hidden md:flex items-center gap-6" role="list">
-            {NAV_LINKS.map(({ label, href }) => (
+            {NAV_LINKS.map(({ label, href, highlight }) => (
               <li key={href}>
                 <a
                   href={href}
-                  className="text-sm text-offwhite hover:text-cream transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber rounded px-1"
+                  className={
+                    highlight
+                      ? 'text-sm font-semibold px-4 py-2 rounded-full transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber'
+                      : 'text-sm text-offwhite hover:text-cream transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber rounded px-1'
+                  }
+                  style={highlight ? { background: '#C4622D', color: '#F5ECD7' } : undefined}
                 >
                   {label}
                 </a>
@@ -107,12 +113,13 @@ export default function Navbar() {
         ].join(' ')}
       >
         <ul className="flex flex-col px-6 py-4 gap-1" role="list">
-          {NAV_LINKS.map(({ label, href }) => (
+          {NAV_LINKS.map(({ label, href, highlight }) => (
             <li key={href}>
               <a
                 href={href}
                 onClick={handleLinkClick}
-                className="block py-3 text-offwhite hover:text-cream text-base transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber rounded px-1"
+                className="block py-3 text-base transition-colors duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber rounded px-1"
+                style={highlight ? { color: '#C4622D', fontWeight: 700 } : { color: '#EDE8DF' }}
               >
                 {label}
               </a>

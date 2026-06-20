@@ -11,24 +11,9 @@ interface CartPanelProps {
   tableId: string | null;
 }
 
-/**
- * CartPanel — floating cart button on mobile, sidebar on desktop.
- *
- * Mobile: fixed bottom-right button showing item count badge.
- *         Tapping opens a slide-up drawer with the full cart.
- * Desktop: shown as a sidebar panel when the cart has items.
- *
- * "Send Order via WhatsApp" is disabled + shows validation message when cart is empty.
- *
- * Requirements: 2.8, 2.9, 2.10
- */
-export default function CartPanel({
-  items,
-  removeItem,
-  clear,
-  total,
-  tableId,
-}: CartPanelProps) {
+const WHATSAPP_GREEN = '#25D366';
+
+export default function CartPanel({ items, removeItem, clear, total, tableId }: CartPanelProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isEmpty = items.length === 0;
   const itemCount = items.reduce((sum, i) => sum + i.qty, 0);
@@ -39,56 +24,49 @@ export default function CartPanel({
     openWhatsApp(WHATSAPP_NUMBER, message);
   }
 
-  const cartContent = (
-    <div className="flex flex-col h-full">
+  // ── Desktop sidebar content ──────────────────────────────────────────
+  const sidebarContent = (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-espresso/10">
-        <h2 className="font-display font-semibold text-espresso text-base">
-          Your Order
-        </h2>
-        {tableId && (
-          <span className="text-xs text-espresso/60 bg-cream rounded-full px-2 py-0.5">
-            Table {tableId}
-          </span>
-        )}
+      <div style={{ padding: '12px 16px', borderBottom: '1px solid rgba(28,16,8,0.1)', flexShrink: 0 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontWeight: 600, fontSize: 15, color: '#1C1008' }}>Your Order</span>
+          {tableId && (
+            <span style={{ fontSize: 11, color: '#1C1008', opacity: 0.6, background: '#F5ECD7', borderRadius: 999, padding: '2px 8px' }}>
+              Table {tableId}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Item list */}
-      <div className="flex-1 overflow-y-auto px-4 py-3">
+      <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px' }}>
         {isEmpty ? (
-          <p className="text-sm text-espresso/50 text-center py-8">
-            Your cart is empty
+          <p style={{ textAlign: 'center', color: '#1C1008', opacity: 0.4, fontSize: 13, padding: '24px 0' }}>
+            Add items from the menu
           </p>
         ) : (
-          <ul className="space-y-3">
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
             {items.map((item) => (
-              <li key={item.id} className="flex items-center gap-3">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-espresso truncate">
+              <li key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ margin: 0, fontSize: 13, fontWeight: 500, color: '#1C1008', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {item.name}
                   </p>
-                  <p className="text-xs text-espresso/60">
+                  <p style={{ margin: 0, fontSize: 11, color: '#1C1008', opacity: 0.6 }}>
                     ₹{item.price} × {item.qty}
                   </p>
                 </div>
-                <span className="text-sm font-semibold text-espresso whitespace-nowrap">
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#1C1008', whiteSpace: 'nowrap' }}>
                   ₹{item.price * item.qty}
                 </span>
                 <button
                   type="button"
                   onClick={() => removeItem(item.id)}
-                  aria-label={`Remove ${item.name} from cart`}
-                  className="p-1 rounded-full text-espresso/40 hover:text-espresso hover:bg-espresso/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber"
+                  aria-label={`Remove ${item.name}`}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: 'rgba(28,16,8,0.4)', borderRadius: '50%' }}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    className="w-4 h-4"
-                    aria-hidden="true"
-                  >
-                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                  </svg>
+                  ✕
                 </button>
               </li>
             ))}
@@ -96,28 +74,20 @@ export default function CartPanel({
         )}
       </div>
 
-      {/* Footer: total + actions */}
-      <div className="px-4 py-4 border-t border-espresso/10 space-y-3">
+      {/* Footer */}
+      <div style={{ flexShrink: 0, padding: '12px 16px', borderTop: '1px solid rgba(28,16,8,0.1)' }}>
         {!isEmpty && (
-          <div className="flex justify-between items-center text-sm font-semibold text-espresso">
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, fontSize: 14, fontWeight: 700, color: '#1C1008' }}>
             <span>Total</span>
             <span>₹{total}</span>
           </div>
         )}
-
-        {/* Empty cart validation message */}
-        {isEmpty && (
-          <p className="text-xs text-espresso/50 text-center" role="status">
-            Add items to send an order
-          </p>
-        )}
-
-        <div className="flex gap-2">
+        <div style={{ display: 'flex', gap: 8 }}>
           {!isEmpty && (
             <button
               type="button"
               onClick={clear}
-              className="flex-1 min-h-11 rounded-xl border border-espresso/20 text-sm text-espresso/60 hover:bg-espresso/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber"
+              style={{ flex: '0 0 auto', minHeight: 44, padding: '0 16px', borderRadius: 12, border: '1px solid rgba(28,16,8,0.2)', background: 'transparent', fontSize: 13, cursor: 'pointer', color: 'rgba(28,16,8,0.6)' }}
             >
               Clear
             </button>
@@ -126,17 +96,13 @@ export default function CartPanel({
             type="button"
             disabled={isEmpty}
             onClick={handleSendOrder}
-            className={[
-              'flex-1 min-h-11 rounded-xl text-sm font-semibold px-4 py-2',
-              'transition-colors duration-150',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber',
-              isEmpty
-                ? 'bg-espresso/10 text-espresso/30 cursor-not-allowed'
-                : 'bg-matcha text-cream hover:bg-matcha/90 active:bg-matcha/80',
-            ].join(' ')}
-            aria-disabled={isEmpty}
+            style={{
+              flex: 1, minHeight: 44, borderRadius: 12, border: 'none', fontSize: 13, fontWeight: 700, cursor: isEmpty ? 'not-allowed' : 'pointer',
+              background: isEmpty ? 'rgba(28,16,8,0.08)' : WHATSAPP_GREEN,
+              color: isEmpty ? 'rgba(28,16,8,0.3)' : '#fff',
+            }}
           >
-            {isEmpty ? "Cart is empty" : "Send via WhatsApp"}
+            {isEmpty ? 'Cart is empty' : '📲 Send Order via WhatsApp'}
           </button>
         </div>
       </div>
@@ -145,43 +111,54 @@ export default function CartPanel({
 
   return (
     <>
-      {/* ── Desktop sidebar (shown when cart has items) ── */}
+      {/* ── Desktop sidebar ── */}
       <aside
-        className={[
-          'hidden md:flex flex-col w-80 bg-offwhite rounded-2xl shadow-lg sticky top-24 self-start',
-          'transition-all duration-300 ease-in-out',
-          isEmpty ? 'opacity-50' : 'opacity-100',
-        ].join(' ')}
-        style={{ minHeight: '300px', maxHeight: 'calc(100vh - 8rem)' }}
+        className="hidden md:flex"
+        style={{
+          flexDirection: 'column',
+          width: 320,
+          background: '#EDE8DF',
+          borderRadius: 16,
+          boxShadow: '0 4px 20px rgba(28,16,8,0.1)',
+          position: 'sticky',
+          top: 96,
+          alignSelf: 'flex-start',
+          minHeight: 300,
+          maxHeight: 'calc(100vh - 8rem)',
+          opacity: isEmpty ? 0.6 : 1,
+          transition: 'opacity 0.3s',
+        }}
         aria-label="Order cart"
       >
-        {cartContent}
+        {sidebarContent}
       </aside>
 
-      {/* ── Mobile: floating button + drawer ── */}
+      {/* ── Mobile: floating button + full-screen drawer ── */}
       <div className="md:hidden">
-        {/* Floating cart button — sits above the sticky bar (bottom-20 = 80px) */}
+        {/* Floating cart FAB */}
         <button
           type="button"
           onClick={() => setDrawerOpen(true)}
-          aria-label={`Open cart, ${itemCount} item${itemCount !== 1 ? 's' : ''}`}
-          className="fixed bottom-20 right-4 z-30 w-14 h-14 rounded-full bg-amber text-cream shadow-lg flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber focus-visible:ring-offset-2"
+          aria-label={`View cart – ${itemCount} item${itemCount !== 1 ? 's' : ''}`}
+          style={{
+            position: 'fixed', bottom: 80, right: 16, zIndex: 30,
+            width: 56, height: 56, borderRadius: '50%',
+            background: '#C4622D', color: '#F5ECD7', border: 'none',
+            boxShadow: '0 4px 16px rgba(196,98,45,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', fontSize: 22,
+          }}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="w-6 h-6"
-            aria-hidden="true"
-          >
-            <path d="M2.25 2.25a.75.75 0 000 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 00-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 000-1.5H5.378A2.25 2.25 0 017.5 15h11.218a.75.75 0 00.674-.421 60.358 60.358 0 002.96-7.228.75.75 0 00-.525-.965A60.864 60.864 0 005.68 4.509l-.232-.867A1.875 1.875 0 003.636 2.25H2.25zM3.75 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM16.5 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z" />
-          </svg>
+          🛒
           {itemCount > 0 && (
-            <span
-              aria-hidden="true"
-              className="absolute -top-1 -right-1 bg-espresso text-cream text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center"
-            >
-              {itemCount > 99 ? '99+' : itemCount}
+            <span style={{
+              position: 'absolute', top: -4, right: -4,
+              background: '#1C1008', color: '#F5ECD7',
+              fontSize: 10, fontWeight: 700,
+              width: 20, height: 20, borderRadius: '50%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              {itemCount > 9 ? '9+' : itemCount}
             </span>
           )}
         </button>
@@ -189,71 +166,87 @@ export default function CartPanel({
         {/* Backdrop */}
         {drawerOpen && (
           <div
-            className="fixed inset-0 z-40 bg-espresso/40 backdrop-blur-sm"
-            aria-hidden="true"
             onClick={() => setDrawerOpen(false)}
+            style={{ position: 'fixed', inset: 0, zIndex: 55, background: 'rgba(28,16,8,0.5)' }}
+            aria-hidden="true"
           />
         )}
 
-        {/* Slide-up drawer — fixed height layout so footer button is always visible */}
+        {/* Drawer — z-index 60 so it sits above the sticky bar (z-50) */}
         <div
           role="dialog"
           aria-modal="true"
           aria-label="Order cart"
-          className={[
-            'fixed left-0 right-0 z-50 bg-offwhite rounded-t-3xl shadow-xl',
-            'transition-transform duration-300 ease-out',
-            'flex flex-col',
-            drawerOpen ? 'translate-y-0' : 'translate-y-full',
-          ].join(' ')}
-          style={{ bottom: 0, maxHeight: '80vh' }}
+          style={{
+            position: 'fixed',
+            left: 0, right: 0, bottom: 0,
+            zIndex: 60,
+            background: '#EDE8DF',
+            borderRadius: '24px 24px 0 0',
+            boxShadow: '0 -8px 40px rgba(28,16,8,0.2)',
+            height: '72vh',
+            maxHeight: '72vh',
+            display: 'flex',
+            flexDirection: 'column',
+            transform: drawerOpen ? 'translateY(0)' : 'translateY(100%)',
+            transition: 'transform 0.3s ease-out',
+          }}
         >
-          {/* Drag handle */}
-          <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
-            <div className="w-10 h-1 bg-espresso/20 rounded-full" />
+          {/* Handle + header — fixed height ~72px */}
+          <div style={{ flexShrink: 0 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 10, paddingBottom: 6 }}>
+              <div style={{ width: 40, height: 4, background: 'rgba(28,16,8,0.15)', borderRadius: 999 }} />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 16px 12px' }}>
+              <div>
+                <span style={{ fontWeight: 700, fontSize: 16, color: '#1C1008', fontFamily: 'var(--font-display)' }}>
+                  Your Order
+                </span>
+                {tableId && (
+                  <span style={{ marginLeft: 8, fontSize: 11, color: 'rgba(28,16,8,0.5)' }}>
+                    · Table {tableId}
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setDrawerOpen(false)}
+                aria-label="Close cart"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: 'rgba(28,16,8,0.5)', padding: 8, borderRadius: '50%' }}
+              >
+                ✕
+              </button>
+            </div>
           </div>
 
-          {/* Header row with title and close button */}
-          <div className="flex items-center justify-between px-4 pb-3 flex-shrink-0">
-            <h2 className="font-display font-semibold text-espresso text-base">
-              Your Order {tableId && <span className="text-xs font-normal text-espresso/50 ml-1">· Table {tableId}</span>}
-            </h2>
-            <button
-              type="button"
-              onClick={() => setDrawerOpen(false)}
-              aria-label="Close cart"
-              className="p-2 rounded-full text-espresso/50 hover:bg-espresso/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5" aria-hidden="true">
-                <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Scrollable item list */}
-          <div className="flex-1 overflow-y-auto px-4 pb-2 min-h-0">
+          {/* Scrollable item list — fills remaining space */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 8px', minHeight: 0 }}>
             {isEmpty ? (
-              <p className="text-sm text-espresso/50 text-center py-8">
+              <p style={{ textAlign: 'center', color: 'rgba(28,16,8,0.4)', fontSize: 14, paddingTop: 32 }}>
                 Add items from the menu below
               </p>
             ) : (
-              <ul className="space-y-3">
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {items.map((item) => (
-                  <li key={item.id} className="flex items-center gap-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-espresso truncate">{item.name}</p>
-                      <p className="text-xs text-espresso/60">₹{item.price} × {item.qty}</p>
+                  <li key={item.id} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#1C1008', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {item.name}
+                      </p>
+                      <p style={{ margin: 0, fontSize: 12, color: 'rgba(28,16,8,0.6)' }}>
+                        ₹{item.price} × {item.qty}
+                      </p>
                     </div>
-                    <span className="text-sm font-semibold text-espresso whitespace-nowrap">₹{item.price * item.qty}</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: '#1C1008', whiteSpace: 'nowrap' }}>
+                      ₹{item.price * item.qty}
+                    </span>
                     <button
                       type="button"
                       onClick={() => removeItem(item.id)}
                       aria-label={`Remove ${item.name}`}
-                      className="p-1 rounded-full text-espresso/40 hover:text-espresso hover:bg-espresso/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber"
+                      style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'rgba(28,16,8,0.35)', padding: '4px 6px', borderRadius: '50%' }}
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4" aria-hidden="true">
-                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-                      </svg>
+                      ✕
                     </button>
                   </li>
                 ))}
@@ -261,20 +254,29 @@ export default function CartPanel({
             )}
           </div>
 
-          {/* Footer — always visible at the bottom of the drawer */}
-          <div className="flex-shrink-0 px-4 py-4 border-t border-espresso/10 space-y-3 bg-offwhite">
+          {/* Footer — pinned at bottom, extra bottom padding clears the sticky bar */}
+          <div style={{
+            flexShrink: 0,
+            padding: '12px 16px 80px',
+            borderTop: '1px solid rgba(28,16,8,0.1)',
+            background: '#EDE8DF',
+          }}>
             {!isEmpty && (
-              <div className="flex justify-between items-center text-sm font-semibold text-espresso">
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10, fontSize: 15, fontWeight: 700, color: '#1C1008' }}>
                 <span>Total</span>
                 <span>₹{total}</span>
               </div>
             )}
-            <div className="flex gap-2">
+            <div style={{ display: 'flex', gap: 8 }}>
               {!isEmpty && (
                 <button
                   type="button"
                   onClick={clear}
-                  className="min-h-11 px-4 rounded-xl border border-espresso/20 text-sm text-espresso/60 hover:bg-espresso/5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber"
+                  style={{
+                    flex: '0 0 auto', height: 50, padding: '0 20px',
+                    borderRadius: 14, border: '1.5px solid rgba(28,16,8,0.2)',
+                    background: 'transparent', fontSize: 13, cursor: 'pointer', color: 'rgba(28,16,8,0.6)',
+                  }}
                 >
                   Clear
                 </button>
@@ -283,17 +285,16 @@ export default function CartPanel({
                 type="button"
                 disabled={isEmpty}
                 onClick={handleSendOrder}
-                className={[
-                  'flex-1 min-h-11 rounded-xl text-sm font-semibold px-4 py-2',
-                  'transition-colors duration-150',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber',
-                  isEmpty
-                    ? 'bg-espresso/10 text-espresso/30 cursor-not-allowed'
-                    : 'bg-amber text-cream hover:bg-amber/90 active:bg-amber/80',
-                ].join(' ')}
-                aria-disabled={isEmpty}
+                style={{
+                  flex: 1, height: 50, borderRadius: 14, border: 'none',
+                  fontSize: 15, fontWeight: 700,
+                  cursor: isEmpty ? 'not-allowed' : 'pointer',
+                  background: isEmpty ? 'rgba(28,16,8,0.08)' : WHATSAPP_GREEN,
+                  color: isEmpty ? 'rgba(28,16,8,0.3)' : '#fff',
+                  letterSpacing: 0.2,
+                }}
               >
-                {isEmpty ? 'Add items to order' : '📲 Send Order via WhatsApp'}
+                {isEmpty ? 'Add items first' : '📲 Send Order via WhatsApp'}
               </button>
             </div>
           </div>

@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { menuItems, CATEGORIES } from '@/data/menu';
+import { CATEGORIES } from '@/data/menu';
 import { filterByCategory, filterBySearch } from '@/utils/menuFilter';
 import { useCart } from '@/hooks/useCart';
 import { useTableId } from '@/hooks/useTableId';
+import { useMenuOverrides } from '@/hooks/useMenuOverrides';
 import CategoryTabs from './CategoryTabs';
 import MenuItemCard from './MenuItemCard';
 import CartPanel from './CartPanel';
@@ -23,9 +24,10 @@ export default function MenuSection() {
 
   const cart = useCart();
   const tableId = useTableId();
+  const { resolvedItems } = useMenuOverrides();
 
   // Apply filters in sequence: category first, then search
-  const categoryFiltered = filterByCategory(menuItems, activeCategory);
+  const categoryFiltered = filterByCategory(resolvedItems, activeCategory);
   const visibleItems = filterBySearch(categoryFiltered, searchQuery);
 
   return (

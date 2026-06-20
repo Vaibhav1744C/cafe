@@ -7,14 +7,14 @@
  */
 
 import { motion } from 'framer-motion'
-import { menuItems } from '@/data/menu'
+import { useMenuOverrides } from '@/hooks/useMenuOverrides'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import SteamEffect from '@/components/effects/SteamEffect'
 
-const signatureItems = menuItems.filter((item) => item.isSignature)
-
 export default function SignatureShowcase() {
   const prefersReducedMotion = useReducedMotion()
+  const { resolvedItems } = useMenuOverrides()
+  const signatureItems = resolvedItems.filter((item) => item.isSignature)
 
   return (
     <section
