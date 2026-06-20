@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { menuItems, CATEGORIES } from '@/data/menu'
+import { CATEGORIES } from '@/data/menu'
 import { useMenuOverrides } from '@/hooks/useMenuOverrides'
 
 export default function AdminMenu() {
@@ -100,7 +100,6 @@ export default function AdminMenu() {
       {/* Item list */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
         {filtered.map(item => {
-          const base = menuItems.find(m => m.id === item.id)!
           return (
             <div
               key={item.id}
